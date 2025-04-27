@@ -1,0 +1,127 @@
+import java.util.*;
+
+
+class Pizza {
+    String size;
+    List<String> toppings;
+    int quantity;
+
+    Pizza(String size, List<String> toppings, int quantity) {
+        this.size = size;
+        this.toppings = toppings;
+        this.quantity = quantity;
+    }
+
+    int getBasePrice() {
+        switch (size.toLowerCase()) {
+            case "small": return 200;
+            case "medium": return 350;
+            case "large": return 500;
+            default: return 0;
+        }
+    }
+
+    int getToppingPrice() {
+        return toppings.size() * 50;
+    }
+
+    int getTotalPrice() {
+        return (getBasePrice() + getToppingPrice()) * quantity;
+    }
+}
+
+class OrderHandler {
+    Scanner sc = new Scanner(System.in);
+    List<Pizza> orders = new ArrayList<>();
+
+    void takeOrder() {
+        System.out.println("Welcome to Java Pizza!");
+        System.out.print("How many pizzas do you want to order? ");
+        int count = sc.nextInt();
+        sc.nextLine();
+
+        for (int i = 0; i < count; i++) {
+            System.out.println("\nPizza #" + (i + 1));
+            System.out.print("Enter size (small/medium/large): ");
+            String size = sc.nextLine();
+
+            List<String> toppings = new ArrayList<>();
+            System.out.print("Enter number of toppings: ");
+            int topCount = sc.nextInt();
+            sc.nextLine();
+
+            for (int j = 0; j < topCount; j++) {
+                System.out.print("Enter topping " + (j + 1) + ": ");
+                toppings.add(sc.nextLine());
+            }
+
+            System.out.print("Enter quantity: ");
+            int quantity = sc.nextInt();
+            sc.nextLine();
+
+            orders.add(new Pizza(size, toppings, quantity));
+        }
+    }
+
+    List<Pizza> getOrders() {
+        return orders;
+    }
+}
+
+class BillCalculator {
+    double TAX_RATE = 0.1; // 10% tax
+
+    int calculateSubtotal(List<Pizza> pizzas) {
+        int total = 0;
+        for (Pizza p : pizzas) {
+            total += p.getTotalPrice();
+        }
+        return total;
+    }
+
+    double calculateTax(int subtotal) {
+        return subtotal * TAX_RATE;
+    }
+
+    double calculateTotalWithTax(int subtotal) {
+        return subtotal + calculateTax(subtotal);
+    }
+}
+
+
+class BillPrinter {
+    void printBill(List<Pizza> pizzas, int subtotal, double tax, double total) {
+        System.out.println("\n------ PIZZA BILL ------");
+        int count = 1;
+        for (Pizza p : pizzas) {
+            System.out.println("Pizza #" + (count++));
+            System.out.println("Size: " + p.size);
+            System.out.println("Toppings: " + String.join(", ", p.toppings));
+            System.out.println("Quantity: " + p.quantity);
+            System.out.println("Price: " + p.getTotalPrice() + " BDT\n");
+        }
+
+        System.out.println("Subtotal: " + subtotal + " BDT");
+        System.out.printf("Tax (10%%): %.2f BDT\n", tax);
+        System.out.printf("Total: %.2f BDT\n", total);
+        System.out.println("------------------------");
+        System.out.println("Thank you for ordering!");
+    }
+}
+
+
+public class PizzaBillGenerator {
+    public static void main(String[] args) {
+        OrderHandler handler = new OrderHandler();
+        handler.takeOrder();
+
+        BillCalculator calc = new BillCalculator();
+        int subtotal = calc.calculateSubtotal(handler.getOrders());
+        double tax = calc.calculateTax(subtotal);
+        double total = calc.calculateTotalWithTax(subtotal);
+
+        BillPrinter printer = new BillPrinter();
+        printer.printBill(handler.getOrders(), subtotal, tax, total);
+    }
+}
+
